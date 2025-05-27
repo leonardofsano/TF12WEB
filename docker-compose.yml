@@ -1,0 +1,61 @@
+services:
+  # NODE
+  node-web-tf12-container:
+    build:
+      context: .
+      dockerfile: docker/node22-web/Dockerfile.dev
+    env_file: .env.example
+    volumes:
+      - .:/app
+      - node-modules-tf12-volume:/app/node_modules
+    restart: unless-stopped
+    environment:
+      - NODE_PORT=${NODE_PORT}
+      - IS_CONTAINER=TRUE
+    expose:
+      - "${NODE_PORT}"
+    networks:
+      - tf12-network
+    depends_on:
+      - postgres-tf12-container
+
+  # NGINX
+  nginx-tf12-container:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "${PORT}:80"
+    volumes:
+      - ./public:/var/www/public
+    depends_on:
+      - node-web-tf12-container
+    networks:
+      - tf12-network
+
+  # POSTGRES
+  postgres-tf12-container:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata-tf12-volume:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      tf12-network:
+        aliases:
+          - ${POSTGRES_HOST}
+
+# OTHERS
+networks:
+  tf12-network:
+    driver: bridge
+
+volumes:
+  pgdata-tf12-volume:
+  node-modules-tf12-volume:
