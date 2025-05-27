@@ -1,4 +1,4 @@
-import PessoaModel from "../../Models/PessoaModel.js";
+import PessoaModel from '../../Models/PessoaModel.js';
 import TelefoneModel from "../../Models/TelefoneModel.js";
 
 export default async (request, response) => {

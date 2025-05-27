@@ -1,38 +1,6 @@
+version: "3.9"
+
 services:
-  # NODE
-  node-web-tf12-container:
-    build:
-      context: .
-      dockerfile: docker/node22-web/Dockerfile.dev
-    env_file: .env.example
-    volumes:
-      - .:/app
-      - node-modules-tf12-volume:/app/node_modules
-    restart: unless-stopped
-    environment:
-      - NODE_PORT=${NODE_PORT}
-      - IS_CONTAINER=TRUE
-    expose:
-      - "${NODE_PORT}"
-    networks:
-      - tf12-network
-    depends_on:
-      - postgres-tf12-container
-
-  # NGINX
-  nginx-tf12-container:
-    build:
-      context: .
-      dockerfile: docker/nginx/Dockerfile
-    ports:
-      - "${PORT}:80"
-    volumes:
-      - ./public:/var/www/public
-    depends_on:
-      - node-web-tf12-container
-    networks:
-      - tf12-network
-
   # POSTGRES
   postgres-tf12-container:
     image: postgres:17
@@ -51,7 +19,38 @@ services:
         aliases:
           - ${POSTGRES_HOST}
 
-# OTHERS
+  # NODE (BACKEND)
+  node-web-tf12-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORT}:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    depends_on:
+      - postgres-tf12-container
+    networks:
+      - tf12-network
+    working_dir: /app
+
+  # NGINX (OPCIONAL)
+  nginx-tf12-container:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/var/www/public
+    depends_on:
+      - node-web-tf12-container
+    networks:
+      - tf12-network
+
 networks:
   tf12-network:
     driver: bridge
