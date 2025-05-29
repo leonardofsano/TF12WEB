@@ -1,39 +1,36 @@
 import Pessoa from '../../Models/PessoaModel.js';
 import Telefone from '../../Models/TelefoneModel.js';
 
-export default class ListPessoaApiController {
-  static async index(req, res) {
+class ListPessoaApiController {
+  async list(req, res) {
     try {
-      // Paginação
       const limit = parseInt(req.query.limit) || 10;
       const offset = parseInt(req.query.offset) || 0;
+      const orderBy = req.query.orderBy || 'id,asc';
 
-      // Ordenação
-      let order = [['id', 'ASC']]; // padrão
-      if (req.query.orderBy) {
-        const [field, direction] = req.query.orderBy.split(',');
-        if (['id', 'created_at', 'updated_at'].includes(field) && ['asc', 'desc'].includes(direction.toLowerCase())) {
-          order = [[field, direction.toUpperCase()]];
-        }
-      }
+      const [orderField, orderDirection] = orderBy.split(',');
+      const allowedFields = ['id', 'created_at', 'updated_at'];
+      const allowedDirections = ['asc', 'desc'];
 
-      // Consulta com associação
+      const field = allowedFields.includes(orderField) ? orderField : 'id';
+      const direction = allowedDirections.includes(orderDirection) ? orderDirection : 'asc';
+
       const pessoas = await Pessoa.findAll({
-        include: [
-          {
-            model: Telefone,
-            as: 'telefones' // deve bater com o alias da relação no Sequelize
-          }
-        ],
+        include: {
+          model: Telefone,
+          as: 'telefones'
+        },
         limit,
         offset,
-        order
+        order: [[field, direction]]
       });
 
-      return res.status(200).json(pessoas);
+      res.json(pessoas);
     } catch (error) {
-      console.error('Erro ao listar pessoas:', error);
-      return res.status(500).json({ error: 'Erro ao buscar pessoas' });
+      console.error(error);
+      res.status(500).json({ error: 'Erro interno no servidor' });
     }
   }
 }
+
+export default new ListPessoaApiController();

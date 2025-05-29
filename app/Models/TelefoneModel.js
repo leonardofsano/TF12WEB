@@ -4,7 +4,7 @@ import { DataTypes } from 'sequelize';
 export default (function () {
 
     return sequelize.define(
-        "PessoaModel",
+        "TelefoneModel",
         {
             id: {
                 type: DataTypes.INTEGER,

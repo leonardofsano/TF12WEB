@@ -1,12 +1,14 @@
-import PessoaModel from "../app/Models/PessoaModel.js";
-import TelefoneModel from "../app/Models/TelefoneModel.js";
+import Pessoa from '../app/Models/PessoaModel.js';
+import Telefone from '../app/Models/TelefoneModel.js';
 
-PessoaModel.hasMany(TelefoneModel, {
+// Uma Pessoa tem muitos Telefones
+Pessoa.hasMany(Telefone, {
     foreignKey: 'id_pessoa',
     as: 'telefones'
 });
 
-TelefoneModel.belongsTo(PessoaModel, {
+// Um Telefone pertence a uma Pessoa
+Telefone.belongsTo(Pessoa, {
     foreignKey: 'id_pessoa',
     as: 'pessoa'
 });

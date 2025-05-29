@@ -1,13 +1,8 @@
 import { Router } from 'express';
 import ListPessoaApiController from '../app/Controllers/PessoaApi/ListPessoaApiController.js';
 
-export default (function () {
+const router = Router();
 
-    const router = Router();
+router.get('/api/pessoas', ListPessoaApiController.list);
 
-    // GET Listar
-    router.get('/api/pessoas', ListPessoaApiController);
-
-    return router;
-
-})();
+export default router;

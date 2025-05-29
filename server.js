@@ -1,6 +1,7 @@
 import express from 'express';
 import chalk from 'chalk';
 import webRoutes from "./routes/web.js";
+import './config/sequelize_relations.js';
 
 const app = express();
 
