@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import express from 'express';
 import path from 'path';
+import CONSTANTS from '../config/constants.js';
 
 import pessoasApi from "./pessoasApi.js";
 import ListPublicFilesController from '../app/Controllers/ListPublicFilesController.js';

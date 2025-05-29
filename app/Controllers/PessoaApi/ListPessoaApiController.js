@@ -1,16 +1,39 @@
-import PessoaModel from '../../Models/PessoaModel.js';
-import TelefoneModel from "../../Models/TelefoneModel.js";
+import Pessoa from '../../Models/PessoaModel.js';
+import Telefone from '../../Models/TelefoneModel.js';
 
-export default async (request, response) => {
+export default class ListPessoaApiController {
+  static async index(req, res) {
+    try {
+      // Paginação
+      const limit = parseInt(req.query.limit) || 10;
+      const offset = parseInt(req.query.offset) || 0;
 
-    const HTTP_STATUS = CONSTANTS.HTTP;
+      // Ordenação
+      let order = [['id', 'ASC']]; // padrão
+      if (req.query.orderBy) {
+        const [field, direction] = req.query.orderBy.split(',');
+        if (['id', 'created_at', 'updated_at'].includes(field) && ['asc', 'desc'].includes(direction.toLowerCase())) {
+          order = [[field, direction.toUpperCase()]];
+        }
+      }
 
-    const ORDENACAO_PADRAO = ["id", "asc"];
+      // Consulta com associação
+      const pessoas = await Pessoa.findAll({
+        include: [
+          {
+            model: Telefone,
+            as: 'telefones' // deve bater com o alias da relação no Sequelize
+          }
+        ],
+        limit,
+        offset,
+        order
+      });
 
-    const ORDENCAO_CAMPOS_PERMITIDOS = ["id", "created_at", "updated_at"];
-
-    const ORDENCAO_DIRECAO_PERMITIDOS = ["ASC", "DESC"];
-
-    /** Codar aqui */
-
-};
+      return res.status(200).json(pessoas);
+    } catch (error) {
+      console.error('Erro ao listar pessoas:', error);
+      return res.status(500).json({ error: 'Erro ao buscar pessoas' });
+    }
+  }
+}
